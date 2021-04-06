@@ -13,5 +13,5 @@ end SEFA_Bitwise_ORI;
 
 architecture arch of SEFA_Bitwise_ORI is
 begin
-	SEFA_RT <= SEFA_RS OR std_logic_vector(resize(unsigned(SEFA_IMMEDIATE), SEFA_N)); 
+	SEFA_RT <= SEFA_RS; --OR std_logic_vector(resize(unsigned(SEFA_IMMEDIATE), SEFA_N)); CURRENT CODE IS NOT WORKING
 end arch;

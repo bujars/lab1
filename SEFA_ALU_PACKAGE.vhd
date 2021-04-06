@@ -54,6 +54,30 @@ COMPONENT SEFA_RD_REGISTER IS
 		);
 end COMPONENT SEFA_RD_REGISTER;
 
+COMPONENT SEFA_MAR_REGISTER IS
+	generic (SEFA_N: integer := 32);
+	port(
+	SEFA_clk: in std_logic;
+		SEFA_wren: in std_logic;
+		SEFA_rden: in std_logic;
+		SEFA_chen: in std_logic;
+		SEFA_data: in std_logic_vector (SEFA_N-1 downto 0);
+		SEFA_RS: out std_logic_vector(SEFA_N-1 downto 0)
+		);
+end COMPONENT SEFA_MAR_REGISTER;
+
+COMPONENT SEFA_MDR_REGISTER IS
+	generic (SEFA_N: integer := 32);
+	port(
+	SEFA_clk: in std_logic;
+		SEFA_wren: in std_logic;
+		SEFA_rden: in std_logic;
+		SEFA_chen: in std_logic;
+		SEFA_data: in std_logic_vector (SEFA_N-1 downto 0);
+		SEFA_RS: out std_logic_vector(SEFA_N-1 downto 0)
+		);
+end COMPONENT SEFA_MDR_REGISTER;
+
 
 
 COMPONENT SEFA_Bitwise_OR is
