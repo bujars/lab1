@@ -6,7 +6,7 @@ entity SEFA_Instruction_Operator is
 	generic (SEFA_N: integer := 32);
 	port(
 		SEFA_RS, SEFA_RT: IN STD_LOGIC_VECTOR(SEFA_N-1 downto 0);
-		SEFA_Operation_Code: IN STD_LOGIC_VECTOR(2 downto 0); -- Note we have a 3 bit selector. 
+		SEFA_Operation_Code: IN STD_LOGIC_VECTOR(3 downto 0); -- Note we have a 4 bit selector, per project requirement. 
 		SEFA_ZERO, SEFA_NEGATIVE, SEFA_OVERFLOW: OUT STD_LOGIC := '0' ;
 		SEFA_RD : OUT STD_LOGIC_VECTOR(SEFA_N-1 downto 0)
 	);
@@ -20,28 +20,38 @@ SIGNAL SEFA_TEMP_COUT: STD_LOGIC;
 
 begin
 
-RESULT: process(SEFA_RS, SEFA_RT, SEFA_Operation_Code, SEFA_ZERO, SEFA_NEGATIVE, SEFA_OVERFLOW, SEFA_RD)
-		begin
-			if(SEFA_Operation_Code  = "000") then
-				U0: SEFA_Bitwise_AND port map (SEFA_RS, SEFA_RT, SEFA_RD);
-			elsif(SEFA_Operation_Code  = "001") then
-				U1: SEFA_Bitwise_OR port map (SEFA_RS, SEFA_RT, SEFA_RD);
-			elsif(SEFA_Operation_Code  = "010") then
-				U2: SEFA_Bitwise_NOR port map (SEFA_RS, SEFA_RT, SEFA_RD);
-			elsif(SEFA_Operation_Code  = "011") then
-				-- SIGNED ADDITION
-				U3: SEFA_ADDER_SUB_SIGNED port map (1, 0, SEFA_RS, SEFA_RT, SEFA_TEMP_COUT, SEFA_OVERFLOW, SEFA_RD, SEFA_NEGATIVE, SEFA_ZERO);
-			elsif(SEFA_Operation_Code  = "100") then
-				-- SIGNED SUBTRACTION
-				U4: SEFA_ADDER_SUB_SIGNED port map (0, 0, SEFA_RS, SEFA_RT, SEFA_TEMP_COUT, SEFA_OVERFLOW, SEFA_RD, SEFA_NEGATIVE, SEFA_ZERO);
-			elsif(SEFA_Operation_Code  = "101") then
-				-- UNSIGNED ADDITION
-				U5: SEFA_ADDER_SUB_UNSIGNED port map (1, 0, SEFA_RS, SEFA_RT, SEFA_TEMP_COUT, SEFA_OVERFLOW, SEFA_RD, SEFA_NEGATIVE, SEFA_ZERO);
-			else 
-				-- UNSIGNED SUBTRACTION
-				U6: SEFA_ADDER_SUB_UNSIGNED port map (0, 0, SEFA_RS, SEFA_RT, SEFA_TEMP_COUT, SEFA_OVERFLOW, SEFA_RD, SEFA_NEGATIVE, SEFA_ZERO);
-			end if; 
-		end process PP; 
+--- NOTE, my original attempt was to use if/else statements inside a process. But due to synchronization that was not working (something to loook into)
+--- Now we will use generate as we did in the adder lab (when we want to create components based on a condition). 
+
+
+U0: if (SEFA_Operation_Code  = "0000") generate
+	R0:SEFA_Bitwise_AND port map (SEFA_RS => SEFA_RS, SEFA_RT => SEFA_RT, SEFA_RD => SEFA_RD);
+end generate; 
+
+U1: if (SEFA_Operation_Code  = "0001") generate
+	R1:SEFA_Bitwise_OR port map (SEFA_RS => SEFA_RS, SEFA_RT => SEFA_RT, SEFA_RD => SEFA_RD);
+end generate;
+
+U2: if (SEFA_Operation_Code  = "0010") generate
+	R2:SEFA_Bitwise_NOR port map (SEFA_RS => SEFA_RS, SEFA_RT => SEFA_RT, SEFA_RD => SEFA_RD);
+end generate;
+
+U3: if (SEFA_Operation_Code  = "0011") generate 
+	R3: SEFA_ADDER_SUB_SIGNED port map (SEFA_add_sub => '1', SEFA_cin => '0', SEFA_dataa => SEFA_RS, SEFA_datab => SEFA_RT, SEFA_cout => SEFA_TEMP_COUT, SEFA_overflow => SEFA_OVERFLOW, SEFA_result => SEFA_RD, SEFA_negative => SEFA_NEGATIVE, SEFA_ZERO => SEFA_ZERO);
+	end generate;	
+
+U4: if (SEFA_Operation_Code  = "0100") generate 
+	R4: SEFA_ADDER_SUB_SIGNED port map (SEFA_add_sub => '0', SEFA_cin => '0', SEFA_dataa => SEFA_RS, SEFA_datab => SEFA_RT, SEFA_cout => SEFA_TEMP_COUT, SEFA_overflow => SEFA_OVERFLOW, SEFA_result => SEFA_RD, SEFA_negative => SEFA_NEGATIVE, SEFA_ZERO => SEFA_ZERO);
+end generate;				
+			
+U5: if (SEFA_Operation_Code  = "0101") generate 
+	R5: SEFA_ADDER_SUB_UNSIGNED port map (SEFA_add_sub => '1', SEFA_cin => '0', SEFA_dataa => SEFA_RS, SEFA_datab => SEFA_RT, SEFA_cout => SEFA_TEMP_COUT, SEFA_overflow => SEFA_OVERFLOW, SEFA_result => SEFA_RD, SEFA_negative => SEFA_NEGATIVE, SEFA_ZERO => SEFA_ZERO);
+end generate;	
+
+U6: if (SEFA_Operation_Code  = "0110") generate 
+	R6: SEFA_ADDER_SUB_UNSIGNED port map (SEFA_add_sub => '0', SEFA_cin => '0', SEFA_dataa => SEFA_RS, SEFA_datab => SEFA_RT, SEFA_cout => SEFA_TEMP_COUT, SEFA_overflow => SEFA_OVERFLOW, SEFA_result => SEFA_RD, SEFA_negative => SEFA_NEGATIVE, SEFA_ZERO => SEFA_ZERO);
+end generate;
+
 	
 
 end arch;
